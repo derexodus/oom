@@ -110,7 +110,7 @@ namespace Task3
 
         public string Supplier { get; set; }
         public string Customer { get; set; }
-        int OrderReference { get; set; }
+        public int OrderReference { get; set; }
 
         LineItem[] LIN = new LineItem[100];
 
@@ -185,6 +185,8 @@ namespace Task3
             {
                 x.Print();
             }
+
+
         }
     }
 }
