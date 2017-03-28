@@ -6,84 +6,182 @@ using System.Threading.Tasks;
 
 namespace Task3
 {
-    public interface Vehicle
+    public struct LineItem
     {
+        public int Position;
+        public string Description;
+    }
+
+    public interface Document
+    {
+        string Supplier { get; set; }
+        string Customer { get; set; }
+        void AddItem(string name);
+        void RemoveItem(int Position);
         void Print();
-    } 
+    }
 
-    public class Car : Vehicle
+    public class Order : Document
     {
-        public Car(int s, string t)
+        public Order(string s, string c, string l)
         {
-            if (s <= 0) throw new ArgumentException("Speed must be greater than 0.", nameof(s));
-            if (string.IsNullOrWhiteSpace(t)) throw new ArgumentException("Type must be given.", nameof(t));
+            if (string.IsNullOrWhiteSpace(s)) throw new ArgumentException("Es muss ein Lieferant angegeben werden!", nameof(s));
+            if (string.IsNullOrWhiteSpace(c)) throw new ArgumentException("Es muss ein Kunde angegeben werden!", nameof(c));
 
-            setTopSpeed(s);
-            setType(t);
+            ItemAmount = 0;
+            Supplier = s;
+            Customer = c;
+            AddItem(l);
+        }
+
+        public string Supplier { get; set; }
+        public string Customer { get; set; }
+
+        LineItem[] LIN = new LineItem[100];
+
+        int ItemAmount;
+
+        public void AddItem(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+            ItemAmount++;
+            LIN[ItemAmount].Position = ItemAmount;
+            LIN[ItemAmount].Description = name;
+        }
+
+        public void RemoveItem(int Position)
+        {
+            if (Position > ItemAmount)
+            {
+                Console.WriteLine("Position nicht gefunden!");
+                return;
+            }
+            else if (Position < 1)
+            {
+                Console.WriteLine("Position darf nicht unter 1 sein!");
+                return;
+            }
+            else
+            {
+                if (Position != ItemAmount)
+                {
+                    for (int i = Position; i < ItemAmount; i++)
+                    {
+                        LIN[i].Position = LIN[i + 1].Position - 1;
+                        LIN[i].Description = LIN[i + 1].Description;
+                    }
+                    ItemAmount--;
+                }
+                else
+                {
+                    ItemAmount--;
+                }
+            }
         }
 
         public void Print()
         {
-            Console.WriteLine("This is a car with top speed: {0} and type of {1}\n", TopSpeed, Type);
+            Console.WriteLine("Supplier: {0}, Customer: {1}", Supplier, Customer);
+            Console.WriteLine("Lineitems:");
+            for (int i = 1; i <= ItemAmount; i++)
+            {
+                Console.WriteLine("Pos: {0}, Description: {1}", LIN[i].Position, LIN[i].Description);
+            }
+            Console.WriteLine();
         }
-
-        int TopSpeed;
-
-        void setTopSpeed(int v) { TopSpeed = v; }
-        int getTopSpeed() { return TopSpeed; }
-
-        string Type;
-
-        void setType(string v) { Type = v; }
-        string getType() { return Type; }
     }
 
-    public class Truck : Vehicle
+    public class OrderConfirmation : Document
     {
-        public Truck(int s, double c)
+        public OrderConfirmation(string s, string c, int r, string l)
         {
-            if (s <= 0) throw new ArgumentException("Speed must be greater than 0.", nameof(s));
-            if (c <= 0) throw new ArgumentException("Capacity must be greater than 0.", nameof(c));
+            if (string.IsNullOrWhiteSpace(s)) throw new ArgumentException("Es muss ein Lieferant angegeben werden!", nameof(s));
+            if (string.IsNullOrWhiteSpace(c)) throw new ArgumentException("Es muss ein Kunde angegeben werden!", nameof(c));
+            if (r < 0) throw new ArgumentException("Die Referenz muss eine positive Zahl sein!", nameof(r));
 
-            setTopSpeed(s);
-            setCapacity(c);
+            ItemAmount = 0;
+            Supplier = s;
+            Customer = c;
+            OrderReference = r;
+            AddItem(l);
+        }
+
+        public string Supplier { get; set; }
+        public string Customer { get; set; }
+        int OrderReference { get; set; }
+
+        LineItem[] LIN = new LineItem[100];
+
+        int ItemAmount;
+
+        public void AddItem(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+            ItemAmount++;
+            LIN[ItemAmount].Position = ItemAmount;
+            LIN[ItemAmount].Description = name;
+        }
+
+        public void RemoveItem(int Position)
+        {
+            if (Position > ItemAmount)
+            {
+                Console.WriteLine("Position nicht gefunden!");
+                return;
+            }
+            else if (Position < 1)
+            {
+                Console.WriteLine("Position darf nicht unter 1 sein!");
+                return;
+            }
+            else
+            {
+                if (Position != ItemAmount)
+                {
+                    for (int i = Position; i < ItemAmount; i++)
+                    {
+                        LIN[i].Position = LIN[i + 1].Position - 1;
+                        LIN[i].Description = LIN[i + 1].Description;
+                    }
+                    ItemAmount--;
+                }
+                else
+                {
+                    ItemAmount--;
+                }
+            }
         }
 
         public void Print()
         {
-           Console.WriteLine("This is a truck with top speed: {0} and capacity of {1} CT\n", TopSpeed, Capacity);
+            Console.WriteLine("Supplier: {0}, Customer: {1}, Order reference: {2}", Supplier, Customer,OrderReference);
+            Console.WriteLine("Lineitems:");
+            for (int i = 1; i <= ItemAmount; i++)
+            {
+                Console.WriteLine("Pos: {0}, Description: {1}", LIN[i].Position, LIN[i].Description);
+            }
+            Console.WriteLine();
         }
-
-        int TopSpeed;
-
-        void setTopSpeed(int v) { TopSpeed = v; }
-        int getTopSpeed() { return TopSpeed; }
-
-        double Capacity;
-
-        void setCapacity(double v) { Capacity = v; }
-        double getCapacity() { return Capacity; }
     }
 
-        class Program
+    class Program
     {
         static void Main(string[] args)
         {
-            var VehArr = new Vehicle[]
-            { 
-                new Car(230, "Sport"),
-                new Truck(160, 2.5),
-                new Truck(130, 4),
-                new Car(185, "Family"),
-                new Truck(170, 1.5),
-                new Car(170, "Limousine"),
-                new Truck(156, 2.3),
-                new Truck(163, 3),
-                new Car(170, "Standard"),
-                new Car(190, "Limousine"),
+            var Documents = new Document[]
+            {
+                new Order("Bahaus","Elektroladen Wagner","Kabel 3m"),
+                new Order("Bahaus","Elektroladen Wagner","Kabel 10m"),
+                new OrderConfirmation("Zgonc","Quester",4711,"Estrich 40kg"),
+                new OrderConfirmation("Zgonc","Quester",4712,"Zement 30kg"),
+                new Order("Hornbach","Gärtnerei Huber","10x Schaufel")
             };
 
-            foreach(var x in VehArr)
+            foreach (var x in Documents)
             {
                 x.Print();
             }
